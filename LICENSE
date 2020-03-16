@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 Skip to content
 Pull requests
@@ -54,6 +55,8 @@ Disclose source
 This is not legal advice. Learn more about repository licenses.
 @blafving blafving Initial commit 0d3bc07 24 minutes ago
 674 lines (553 sloc) 34.3 KB
+=======
+>>>>>>> 0d3bc070557a16ca176f188e568fdafb7d9494ba
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
@@ -728,6 +731,7 @@ may consider it more useful to permit linking proprietary applications with
 the library.  If this is what you want to do, use the GNU Lesser General
 Public License instead of this License.  But first, please read
 <https://www.gnu.org/licenses/why-not-lgpl.html>.
+<<<<<<< HEAD
 
     © 2020 GitHub, Inc.
     Terms
@@ -743,3 +747,5 @@ Public License instead of this License.  But first, please read
     Blog
     About
 
+=======
+>>>>>>> 0d3bc070557a16ca176f188e568fdafb7d9494ba
