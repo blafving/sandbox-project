@@ -17,9 +17,9 @@ from django.contrib import admin
 from django.urls import include, path
 from . import views
 
-app_name = 'sandbox'
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.home),
+    path('', include('mydata.urls')),
     path('polls/', include('polls.urls'))
 ]
