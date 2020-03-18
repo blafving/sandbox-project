@@ -5,7 +5,11 @@ You have eaten this so far today: <br>
 
 {{ todaysummary }}
 
-Do we have this date in our database?
+Here's what the database looks like:
+
+{% for entry in nutrients %}
+{{ entry.date }} ------ {{ entry.calories }} <br>
+{% endfor %}
 
 
 <ul>
