@@ -12,10 +12,7 @@ def log_myfitpal(user, reqdate):
     """
     client = myfitnesspal.Client(user)
     api_day = client.get_date(reqdate)
-    if Nutrient.objects.get(date=reqdate).DoesNotExist == True or \
-    Nutrient.objects.get(date=reqdate) != api_day.totals['calories']:
-        db_meal = Nutrient(date=date, calories=api_day.totals['calories'])
-        db_meal.save()
+    Nutrient.objects.create(date=reqdate, calories=api_day.totals['calories'])
 
 def import_block_myfitpal(user, origin, end):
     """
@@ -26,3 +23,6 @@ def import_block_myfitpal(user, origin, end):
     while reqdate <= end:
         log_myfitpal(user, reqdate)
         reqdate += daycounter
+
+ORIGIN = datetime.date(2020, 2, 15)
+END = datetime.date(2020, 3, 17)
