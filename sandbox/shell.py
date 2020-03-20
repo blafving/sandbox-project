@@ -12,7 +12,29 @@ def log_myfitpal(user, reqdate):
     """
     client = myfitnesspal.Client(user)
     api_day = client.get_date(reqdate)
-    Nutrient.objects.create(date=reqdate, calories=api_day.totals['calories'])
+    if not Nutrient.objects.get(date=reqdate):
+        print('No object there')
+        Nutrient.objects.create(
+            date=reqdate, 
+            calories=api_day.totals['calories'],
+            sodium = api_day.totals['sodium'],
+            carbs = api_day.totals['carbohydrates'],
+            fat = api_day.totals['fat'],
+            sugar = api_day.totals['sugar'],
+            protein = api_day.totals['protein'],
+            )
+    else:
+        print('There is an entry for that date')
+        edits = Nutrient.objects.get(date=reqdate)
+        edits.calories = api_day.totals['calories']
+        edits.sodium = api_day.totals['sodium']
+        edits.carbs = api_day.totals['carbohydrates']
+        edits.fat = api_day.totals['fat']
+        edits.sugar = api_day.totals['sugar']
+        edits.protein = api_day.totals['protein']
+        print(edits.protein)
+        edits.save()
+    return
 
 def import_block_myfitpal(user, origin, end):
     """
@@ -25,4 +47,4 @@ def import_block_myfitpal(user, origin, end):
         reqdate += daycounter
 
 ORIGIN = datetime.date(2020, 2, 15)
-END = datetime.date(2020, 3, 17)
+END = datetime.date(2020, 3, 18)
