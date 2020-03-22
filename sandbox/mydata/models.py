@@ -21,3 +21,19 @@ class Nutrient(models.Model):
         client = myfitnesspal.Client('blafving@gmail.com')
         api_day = client.get_date(self.date)
         return self.calories == api_day.totals['calories']
+
+# class Exercise(models.Model):
+#     date = models.DateField()
+#     start = models.TimeField()
+#     end = models.TimeField()
+
+#     class Meta:
+#         abstract = True
+
+# class Run(Exercise):
+#     RUN_TYPES = (
+#         ('LDR', 'Long distance run/walk'),
+#         ('VO2', 'Cooper VO2max Test'),
+#         ('INT')
+#     )
+#     distance = 

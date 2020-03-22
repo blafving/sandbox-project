@@ -29,5 +29,4 @@ def log_myfitpal(user, reqdate):
             sugar = api_day.totals['sugar'],
             protein = api_day.totals['protein'],
         )
-
     return
