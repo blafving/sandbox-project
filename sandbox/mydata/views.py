@@ -7,7 +7,6 @@ import datetime
 def home(request):
     client = myfitnesspal.Client('blafving@gmail.com')
     new = Nutrient.objects.create(date=datetime.date.today())
-    new.update()
     nutrients = Nutrient.objects.all().order_by('date').reverse()
     rtdict = {
         'nutrients': nutrients 
