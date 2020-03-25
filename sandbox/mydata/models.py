@@ -31,14 +31,14 @@ class User(models.Model):
 
 class Nutrient(models.Model):
     date = models.DateField(primary_key=True)
+    user_rec = models.ForeignKey(User, on_delete=models.CASCADE)
     calories = models.SmallIntegerField(default=0)
     sodium = models.SmallIntegerField(default=0)
     carbs = models.SmallIntegerField(default=0)
     fat = models.SmallIntegerField(default=0)
     sugar = models.SmallIntegerField(default=0)
     protein = models.SmallIntegerField(default=0)
-    userid = models.CharField(max_length=50)
-    user_rec = models.ForeignKey(User, on_delete=models.CASCADE)
+    balance = models.SmallIntegerField(default=0)
 
     def __str__(self):
         return str(self.date)
@@ -55,13 +55,10 @@ class Nutrient(models.Model):
         self.fat = api_day.totals['fat']
         self.sugar = api_day.totals['sugar']
         self.protein = api_day.totals['protein']
+        self.balance = self.calories - self.user_rec.base_metabolic_rate()
         self.save()
         return str(self.date) + 'nutrition updated'
     
-    def cal_balance(self):
-        return self.calories - self.user_rec.base_metabolic_rate()
-
-
 """
 
 
