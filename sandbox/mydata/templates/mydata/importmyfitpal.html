@@ -11,41 +11,14 @@
   </head>
   <body>
     <div class="container-lg">
-<h1>Set micro goals when competing</h1>
-Good morning! It is {% now "l\, F jS" %} 
+        <form action="/mydata/importmyfitpal/" method="post">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" value="More data">
+        </form>
 
-Who are you?
-<form action="/mydata/" method="post">
-  {% csrf_token %}
-  {{ form }}
-  <input type="submit" value="More data">
-</form>
 
-{% if record in user_list %}
-We did find a user! <br>
-{% else %}
-  <p>We didn't find any users. Try /admin</p>
-{% endif %}
-  <ul>
-    {% for user in user_list %}
-    <li>Here's one!</li>
-    <li>{{ user.id }}</li>
-    <li><a href="{% url 'mydata:user' user.id %}">{{ user.firstname }}</a>
-</li>
-    {% endfor %}
-    </ul>
-
-</div>
-<h2>To-do List</h2>
-<ul>
-<li>Analytics and Visualization functionality</li>
-<li>New model for exercises</li>
-<li>Decode .FIT data from Wahoo TICKRX</li>
-<li>Advanced Analytics for cardio workouts</li>
-</ul>
-  
-Try <a href="/polls"> the polls app</a>.
-
+    </div>>
 
 
   <!-- Optional JavaScript -->

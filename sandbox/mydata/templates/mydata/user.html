@@ -14,35 +14,41 @@
 <h1>Set micro goals when competing</h1>
 Good morning! It is {% now "l\, F jS" %} 
 
-Who are you?
-<form action="/mydata/" method="post">
-  {% csrf_token %}
-  {{ form }}
-  <input type="submit" value="More data">
-</form>
+Need more data?
+<a href='importmyfitpal'> My Fitness Pal</a>
 
-{% if record in user_list %}
-We did find a user! <br>
-{% else %}
-  <p>We didn't find any users. Try /admin</p>
-{% endif %}
-  <ul>
-    {% for user in user_list %}
-    <li>Here's one!</li>
-    <li>{{ user.id }}</li>
-    <li><a href="{% url 'mydata:user' user.id %}">{{ user.firstname }}</a>
-</li>
+
+
+Here's what the database looks like:
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th scope="col">Date</th>
+      <th scope="col">Calories</th>
+      <th scope="col">Carbohydrates</th>
+      <th scope="col">Protein</th>
+      <th scope="col">Fat</th>
+      <th scope="col">Sugar</th>
+      <th scope="col">Balance</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for entry in days %}
+    <tr>
+      <th scope="row">{{ entry.date }}</th>
+      <td>{{ entry.calories }}</td>
+      <td>{{ entry.carbs }}</td>
+      <td> {{ entry.protein }}</td>
+      <td>{{ entry.fat}}</td>
+      <td>{{ entry.sugar }}</td>
+      <td>{{ entry.balance }}</td>
+    </tr>
     {% endfor %}
-    </ul>
-
+  </tbody>
+</table>
 </div>
-<h2>To-do List</h2>
-<ul>
-<li>Analytics and Visualization functionality</li>
-<li>New model for exercises</li>
-<li>Decode .FIT data from Wahoo TICKRX</li>
-<li>Advanced Analytics for cardio workouts</li>
-</ul>
+
   
 Try <a href="/polls"> the polls app</a>.
 

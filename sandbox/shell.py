@@ -15,7 +15,7 @@ def import_block_myfitpal(user, origin, end):
     reqdate = origin
     daycounter = datetime.timedelta(days=1)
     while reqdate <= end:
-        log_myfitpal(user, reqdate)
+        Nutrient.objects.create(user, reqdate)
         reqdate += daycounter
 
 ORIGIN = datetime.date(2020, 2, 15)

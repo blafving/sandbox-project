@@ -8,13 +8,13 @@ class User(models.Model):
     firstname = models.CharField('First Name', max_length=50)
     lastname = models.CharField('Last Name', max_length=50)
     height = models.SmallIntegerField('Height (in.)', default=64)
-    weight = models.SmallIntegerField('Weight (lbs.)', default=150)
-    age = models.SmallIntegerField('Age', default=38)
+    birthday = models.DateField('Birthday', default=datetime.date(1981, 9, 20))
     GENDERS = [
         ('ML', 'Male'),
         ('FM', 'Female'),
     ]
     gender = models.CharField(max_length=2, choices=GENDERS)
+    start_date = models.DateField('My Fitness Pal Start Date', default=datetime.date(2020, 3, 10))
     myfitpal_user = models.CharField(max_length=50)
     myfitpal_pw = models.CharField(max_length=50)
 
@@ -23,15 +23,43 @@ class User(models.Model):
 
     def __str__(self):
         return self.firstname + ' ' + self.lastname
+        
+    def manage_days(self):
+        scanner = self.start_date
+        while scanner < (datetime.date.today() - datetime.timedelta(days=1)):
+            if not Day.objects.filter(user=self, date=scanner): 
+                new_day = Day.objects.create(user=self, date=scanner)
+                new_nut = Nutrient.objects.create(date=new_day)
+                new_nut.update()
+            scanner += datetime.timedelta(days=1)
+
+class Day(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateField('Date')
+    weight = models.SmallIntegerField('Weight (lbs.)', default=150)
+    
+    def __str__(self):
+        return str(self.date)
 
     def base_metabolic_rate(self):
         if self.gender == 'ML':
             return 88.362 + (13.397 * self.weight / 2.205) \
-                + (4.799 * self.height * 2.54) - (5.677 * self.age)        
+                + (4.799 * self.height * 2.54) - (5.677 * self.age()) 
+
+    @property
+    def age(self):
+        delta = datetime.date.today() - self.user.birthday
+        return delta
 
 class Nutrient(models.Model):
-    date = models.DateField(primary_key=True)
-    user_rec = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.OneToOneField(Day, 
+        on_delete=models.CASCADE,
+    )
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        default=1
+    )
     calories = models.SmallIntegerField(default=0)
     sodium = models.SmallIntegerField(default=0)
     carbs = models.SmallIntegerField(default=0)
