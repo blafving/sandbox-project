@@ -17,6 +17,7 @@ class User(models.Model):
     start_date = models.DateField('My Fitness Pal Start Date', default=datetime.date(2020, 3, 10))
     myfitpal_user = models.CharField(max_length=50)
     myfitpal_pw = models.CharField(max_length=50)
+    weight_init = models.FloatField('Weight')
 
     def name(self):
         return self.firstname + ' ' + self.lastname
@@ -36,29 +37,53 @@ class User(models.Model):
 class Day(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateField('Date')
-    weight = models.SmallIntegerField('Weight (lbs.)', default=150)
+    new_weight = models.FloatField(
+        'Weight Reading (lbs.)', 
+        null=True, 
+        blank=True,
+    )
     
     def __str__(self):
         return str(self.date)
 
     def base_metabolic_rate(self):
-        if self.gender == 'ML':
-            return 88.362 + (13.397 * self.weight / 2.205) \
-                + (4.799 * self.height * 2.54) - (5.677 * self.age()) 
+        user_ref = self.user
+        height = float(user_ref.height)
+        weight = self.weight[1]
+        age = self.age
+        if user_ref.gender == 'ML':
+            return (
+                88.362 + (13.397 * weight / 2.205) \
+                + (4.799 * height * 2.54) - (5.677 * age)
+            )
+    @property
+    def weight(self):
+        """
+        returns a tuple of (
+            [0]date measurement, 
+            [1]weight ) from the most recent weight reading
+        """
+        user_ref = self.user
+        days = Day.objects.filter(user=self.user.id, date__lte=self.date).order_by('date').reverse()
+        for day in days:
+            if day.new_weight:
+                weight = day.new_weight
+                measured_on = str(day.date)
+                return (measured_on, weight)
 
     @property
     def age(self):
-        delta = datetime.date.today() - self.user.birthday
-        return delta
+        user_ref = self.user
+        delta = datetime.date.today() - user_ref.birthday
+        return delta.days / 365.242199
 
 class Nutrient(models.Model):
-    date = models.OneToOneField(Day, 
+    date_owner = models.OneToOneField(Day, 
         on_delete=models.CASCADE,
     )
-    user = models.OneToOneField(
+    user_owner = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
-        default=1
     )
     calories = models.SmallIntegerField(default=0)
     sodium = models.SmallIntegerField(default=0)
@@ -69,23 +94,41 @@ class Nutrient(models.Model):
     balance = models.SmallIntegerField(default=0)
 
     def __str__(self):
-        return str(self.date)
+        username = self.get_username()
+        day = str(self.get_date())
+        return '%s: %s' % (username, day)
+
+    def get_date(self):
+        """
+        Returns date of Day owner as datetime object
+        """
+        day = self.date_owner
+        return day.date
+
+    def get_username(self):
+        """
+        Retrieves name of user object as single string 'Firstname Lastname'
+        """
+        user = self.user_owner
+        return user.name()
 
     def update(self):
         """
         updates the item from myfitpal api
         """
-        client = myfitnesspal.Client(self.user_rec.myfitpal_user)
-        api_day = client.get_date(self.date)
+        user = self.user_owner
+        day = self.date_owner
+        client = myfitnesspal.Client(user.myfitpal_user)
+        api_day = client.get_date(self.get_date())
         self.calories = api_day.totals['calories']
         self.sodium = api_day.totals['sodium']
         self.carbs = api_day.totals['carbohydrates']
         self.fat = api_day.totals['fat']
         self.sugar = api_day.totals['sugar']
         self.protein = api_day.totals['protein']
-        self.balance = self.calories - self.user_rec.base_metabolic_rate()
+        self.balance = self.calories - day.base_metabolic_rate()
         self.save()
-        return str(self.date) + 'nutrition updated'
+        return str(self.date_owner) + 'nutrition updated'
     
 """
 
