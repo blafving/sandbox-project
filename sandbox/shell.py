@@ -6,8 +6,10 @@ from django.utils import timezone
 import datetime
 import myfitnesspal
 from mydata.models import Day, Nutrient, User
+from django.core import exceptions
 
 Brandon = User.objects.get(id=1)
+Brandon.del_dups()
 Brandon.weight_init
 
 day_obj = Day.objects.get(user=Brandon, date=datetime.date(2020, 2, 19))

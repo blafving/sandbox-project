@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 import datetime
 import myfitnesspal
+from django.core import exceptions
 
 # Create your models here.
 class User(models.Model):
@@ -25,13 +26,23 @@ class User(models.Model):
     def __str__(self):
         return self.firstname + ' ' + self.lastname
         
-    def manage_days(self):
+    def block_import(self):
+        """
+        Ensures that there are no more than one Day and one Nutrient for each day of the calendar
+        since the start date.
+        """
         scanner = self.start_date
         while scanner < (datetime.date.today() - datetime.timedelta(days=1)):
-            if not Day.objects.filter(user=self, date=scanner): 
-                new_day = Day.objects.create(user=self, date=scanner)
-                new_nut = Nutrient.objects.create(date=new_day)
-                new_nut.update()
+            while Day.objects.filter(user=self, date=scanner).count() > 1:
+                print('I found more than one Day on %s' % str(scanner))
+                day_list = Day.objects.filter(user=self, date=scanner)
+                day_list[0].delete()
+            day, created = Day.objects.get_or_create(user=self, date=scanner)
+            while Nutrient.objects.filter(date_owner=day.id, user_owner=self).count() > 1:
+                nut_list = Nutrient.objects.filter(date_owner=day.id, user_owner=self)
+                nut_list[0].delete()
+            nut, created = Nutrient.objects.get_or_create(date_owner=day, user_owner=self)
+            nut.update()
             scanner += datetime.timedelta(days=1)
 
 class Day(models.Model):
@@ -81,7 +92,7 @@ class Nutrient(models.Model):
     date_owner = models.OneToOneField(Day, 
         on_delete=models.CASCADE,
     )
-    user_owner = models.OneToOneField(
+    user_owner = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
     )
