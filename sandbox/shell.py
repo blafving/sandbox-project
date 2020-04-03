@@ -9,15 +9,18 @@ from mydata.models import Day, Nutrient, User
 from django.core import exceptions
 
 Brandon = User.objects.get(id=1)
-Brandon.del_dups()
-Brandon.weight_init
+yesterday = datetime.date(2020, 3, 29)
+day = Day.objects.get(user=Brandon, date=yesterday)
+range_balance = Day.objects.filter(user=Brandon, date__gte=datetime.date(2020, 2, 15))
+net = 0
+for day in range_balance:
+    net += day.cal_balance
+print(net)
 
 day_obj = Day.objects.get(user=Brandon, date=datetime.date(2020, 2, 19))
 day_obj.weight
 
-Day.objects.create(date=datetime.date(2020, 2, 17), user=Brandon, new_weight=194)
-Day.objects.create(date=datetime.date(2020, 2, 18), user=Brandon, new_weight=193.9)
-Day.objects.create(date=datetime.date(2020, 2, 19), user=Brandon, new_weight=193.8)
+week = Day.objects.filter(user=Brandon, date__lte=datetime.date()
 
 day_obj.age
 day_obj.base_metabolic_rate()

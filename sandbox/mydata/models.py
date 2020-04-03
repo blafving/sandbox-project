@@ -26,13 +26,13 @@ class User(models.Model):
     def __str__(self):
         return self.firstname + ' ' + self.lastname
         
-    def block_import(self):
+    def block_import(self, start):
         """
         Ensures that there are no more than one Day and one Nutrient for each day of the calendar
         since the start date.
         """
-        scanner = self.start_date
-        while scanner < (datetime.date.today() - datetime.timedelta(days=1)):
+        scanner = start
+        while scanner < (datetime.date.today()):
             while Day.objects.filter(user=self, date=scanner).count() > 1:
                 print('I found more than one Day on %s' % str(scanner))
                 day_list = Day.objects.filter(user=self, date=scanner)
@@ -42,8 +42,19 @@ class User(models.Model):
                 nut_list = Nutrient.objects.filter(date_owner=day.id, user_owner=self)
                 nut_list[0].delete()
             nut, created = Nutrient.objects.get_or_create(date_owner=day, user_owner=self)
-            nut.update()
+            if created:
+                day.nutrient.update()
             scanner += datetime.timedelta(days=1)
+
+    def recent_import(self):
+        """
+        Imports all fitness data from last import to yesterday
+        """
+        last_import = Day.objects.filter(user=self).order_by('date').reverse()
+        last_date = last_import[0].date + datetime.timedelta(days=1) 
+        self.block_import(last_date)
+
+
 
 class Day(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -57,6 +68,7 @@ class Day(models.Model):
     def __str__(self):
         return str(self.date)
 
+    @property
     def base_metabolic_rate(self):
         user_ref = self.user
         height = float(user_ref.height)
@@ -87,6 +99,13 @@ class Day(models.Model):
         user_ref = self.user
         delta = datetime.date.today() - user_ref.birthday
         return delta.days / 365.242199
+
+    @property
+    def cal_balance(self):
+        """
+        The number of calories added or subtracted from User this day.
+        """
+        return self.nutrient.calories - self.base_metabolic_rate
 
 class Nutrient(models.Model):
     date_owner = models.OneToOneField(Day, 
@@ -137,7 +156,7 @@ class Nutrient(models.Model):
         self.fat = api_day.totals['fat']
         self.sugar = api_day.totals['sugar']
         self.protein = api_day.totals['protein']
-        self.balance = self.calories - day.base_metabolic_rate()
+        self.balance = self.calories - day.base_metabolic_rate
         self.save()
         return str(self.date_owner) + 'nutrition updated'
     
