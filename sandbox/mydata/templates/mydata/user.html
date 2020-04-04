@@ -37,12 +37,12 @@ Here's what the database looks like:
     {% for entry in days %}
     <tr>
       <th scope="row">{{ entry.date }}</th>
-      <td>{{ entry.calories }}</td>
-      <td>{{ entry.carbs }}</td>
-      <td> {{ entry.protein }}</td>
-      <td>{{ entry.fat}}</td>
-      <td>{{ entry.sugar }}</td>
-      <td>{{ entry.balance }}</td>
+      <td>{{ entry.nutrient.calories }}</td>
+      <td>{{ entry.nutrient.carbs }}</td>
+      <td> {{ entry.nutrient.protein }}</td>
+      <td>{{ entry.nutrient.fat}}</td>
+      <td>{{ entry.nutrient.sugar }}</td>
+      <td>{{ entry.cal_balance }}</td>
     </tr>
     {% endfor %}
   </tbody>

@@ -15,11 +15,11 @@ def home(request):
     }
     return render(request, 'mydata\home.html', context)
 
-def user(request, user_id):
+def user(request, username):
     # Day objects for the given user
-    user = get_object_or_404(User, pk=user_id)
-    user.manage_days()
-    days = Day.objects.filter(user=user_id)
+    record = get_object_or_404(User, pk=username)
+    record.recent_import()
+    days = Day.objects.filter(user=username).order_by('date').reverse()
     context = {
         'days': days
     }
