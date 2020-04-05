@@ -2,14 +2,13 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from .models import Nutrient, User, Day
 from .forms import UserForm
-import myfitnesspal
 import datetime
-from bokeh.plotting import figure, output_file, show
+import pandas as pd
+from bokeh.plotting import figure, output_file
 from bokeh.embed import components
 
 def home(request):
     user_list = User.objects.all()
-    print(user_list)
     form = UserForm()
     context = {
         'form': form, 
@@ -21,18 +20,29 @@ def user(request, username):
     # Day objects for the given user
     record = get_object_or_404(User, pk=username)
     record.recent_import()
-    days = Day.objects.filter(user=username).order_by('date')
+    days = Day.objects.filter(user=username).order_by('date').reverse()
     ### Graphing
-    x = range(len(days))
-    y = [day.cal_balance for day in days]
+    data = {}
+    data['date'] = [day.date for day in days]
+    data['calorie balance'] = [day.cal_balance for day in days]
+    df = pd.DataFrame(data)
+    df['date'] = pd.to_datetime(df['date'])
     plot = figure(
         title='Check it', 
         x_axis_label='Time', 
+        x_axis_type='datetime',
         y_axis_label='Calorie balance', 
         plot_width=800, 
-        plot_height=800
+        plot_height=400
         )
-    plot.line(x, y, line_width=2)
+    plot.segment(
+        x0=df['date'], 
+        y0=[0 for day in days], 
+        x1=df['date'],
+        y1=df['calorie balance'],
+        color='#00CC66', 
+        line_width=4)
+    # plot.line(df['date'], [0 for day in days], line_width=2)
     script, div = components(plot)
     days.reverse()
     context = {
