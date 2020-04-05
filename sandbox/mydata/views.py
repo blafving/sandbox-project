@@ -4,6 +4,8 @@ from .models import Nutrient, User, Day
 from .forms import UserForm
 import myfitnesspal
 import datetime
+from bokeh.plotting import figure, output_file, show
+from bokeh.embed import components
 
 def home(request):
     user_list = User.objects.all()
@@ -19,14 +21,32 @@ def user(request, username):
     # Day objects for the given user
     record = get_object_or_404(User, pk=username)
     record.recent_import()
-    days = Day.objects.filter(user=username).order_by('date').reverse()
+    days = Day.objects.filter(user=username).order_by('date')
+    ### Graphing
+    x = range(len(days))
+    y = [day.cal_balance for day in days]
+    plot = figure(
+        title='Check it', 
+        x_axis_label='Time', 
+        y_axis_label='Calorie balance', 
+        plot_width=800, 
+        plot_height=800
+        )
+    plot.line(x, y, line_width=2)
+    script, div = components(plot)
+    days.reverse()
     context = {
-        'days': days
+        'days': days,
+        'script': script,
+        'div': div
     }
     return render(request, r'mydata\user.html', context)
 
 
 def import_myfitpal(request):
+    """
+    Not currently used for anything - all import functionality was baked into the models
+    """
     if request.method == 'POST':
         form = MyfitdataForm(request.POST)
         if form.is_valid():

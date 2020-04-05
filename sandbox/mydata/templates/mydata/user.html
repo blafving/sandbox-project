@@ -8,6 +8,11 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <title>My fitness data</title>
+    <!-- Bokeh -->
+ <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.0.1.min.js"></script>
+ <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.0.1.min.js"></script>
+ <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.0.1.min.js"></script>
+{{ script | safe }}
   </head>
   <body>
     <div class="container-lg">
@@ -15,7 +20,15 @@
 Good morning! It is {% now "l\, F jS" %} 
 
 Need more data?
-<a href='importmyfitpal'> My Fitness Pal</a>
+<a href='importmyfitpal'> My Fitness Pal</a><br>
+<h2>And now for something really cool.</h2>
+
+<div class="container-lg">
+
+  {{ div | safe }}
+
+</div>
+
 
 
 
