@@ -9,6 +9,7 @@ from mydata.models import Day, Nutrient, User
 from django.core import exceptions
 
 Brandon = User.objects.get(id=1)
+Brandon.block_import(datetime.date(2020, 3, 1))
 days = Day.objects.filter(user=Brandon).order_by('date')   
 yesterday = datetime.date(2020, 3, 29)
 day = Day.objects.get(user=Brandon, date=yesterday)

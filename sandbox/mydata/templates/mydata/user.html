@@ -16,24 +16,25 @@
   </head>
   <body>
     <div class="container-lg">
-<h1>Set micro goals when competing</h1>
-Good morning! It is {% now "l\, F jS" %} 
-
-Need more data?
-<a href='importmyfitpal'> My Fitness Pal</a><br>
-<h2>And now for something really cool.</h2>
-
-<div class="container-lg">
-
-  {{ div | safe }}
-
+      <div class="row">
+        <div class="col-9"><h1>Set small goals and let the vision happen</h1> </div>
+        <div class="col-3">{% now "l\, F jS" %} </div>
+      </div>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-9"> {{ div | safe }} </div>
+        <div class="col-3"><h2>Snapshots</h2>
+          <dl class="dl-horizontal"> 
+          {% for key, value in stats.items %}
+          <dt>{{ key }} </dt> 
+          <dd> {{ value }} </dd>
+               {% endfor %}
+          </dl> 
+        </div>
+    </div>
 </div>
 
-
-
-
 Here's what the database looks like:
-
 <table class="table table-striped">
   <thead>
     <tr>

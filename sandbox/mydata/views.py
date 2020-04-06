@@ -28,7 +28,7 @@ def user(request, username):
     df = pd.DataFrame(data)
     df['date'] = pd.to_datetime(df['date'])
     plot = figure(
-        title='Check it', 
+        title=record.name(), 
         x_axis_label='Time', 
         x_axis_type='datetime',
         y_axis_label='Calorie balance', 
@@ -42,13 +42,13 @@ def user(request, username):
         y1=df['calorie balance'],
         color='#00CC66', 
         line_width=4)
-    # plot.line(df['date'], [0 for day in days], line_width=2)
     script, div = components(plot)
-    days.reverse()
+    stats = record.snapshot()
     context = {
         'days': days,
         'script': script,
-        'div': div
+        'div': div,
+        'stats': stats,
     }
     return render(request, r'mydata\user.html', context)
 

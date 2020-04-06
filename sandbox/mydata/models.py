@@ -42,8 +42,7 @@ class User(models.Model):
                 nut_list = Nutrient.objects.filter(date_owner=day.id, user_owner=self)
                 nut_list[0].delete()
             nut, created = Nutrient.objects.get_or_create(date_owner=day, user_owner=self)
-            if created:
-                day.nutrient.update()
+            day.nutrient.update()
             scanner += datetime.timedelta(days=1)
 
     def recent_import(self):
@@ -54,7 +53,21 @@ class User(models.Model):
         last_date = last_import[0].date + datetime.timedelta(days=1) 
         self.block_import(last_date)
 
-
+    def snapshot(self):
+        """
+        Gives high level analytics including weekly and monthly figure in a nice dictionary
+        keys: cal_balance, cal_mean, cal_burned, burn_mean
+        """
+        stats = {}
+        # Weekly statistics
+        week = Day.objects.filter(user=self).order_by('date').reverse()[:6]
+        month = Day.objects.filter(user=self).order_by('date').reverse()[:30]
+        stats['Energy balance +/- Cal'] = int(sum([entry.cal_balance for entry in week]))
+        stats['Mean balance per day'] = int(sum([entry.cal_balance for entry in month]) / month.count())
+        stats['Exercise in last 7 days'] = int(sum([entry.nutrient.cal_burned for entry in week]))
+        stats['Mean exercise per day'] = int(sum([entry.nutrient.cal_burned for entry in month]) / month.count())
+        return stats
+        
 
 class Day(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -122,6 +135,7 @@ class Nutrient(models.Model):
     sugar = models.SmallIntegerField(default=0)
     protein = models.SmallIntegerField(default=0)
     balance = models.SmallIntegerField(default=0)
+    cal_burned = models.SmallIntegerField(default=0)
 
     def __str__(self):
         username = self.get_username()
@@ -156,9 +170,12 @@ class Nutrient(models.Model):
         self.fat = api_day.totals['fat']
         self.sugar = api_day.totals['sugar']
         self.protein = api_day.totals['protein']
-        self.balance = self.calories - day.base_metabolic_rate
-        self.save()
-        return str(self.date_owner) + 'nutrition updated'
+        try:
+            self.cal_burned = api_day.exercises[0].get_as_list()[0]['nutrition_information']['calories burned']
+        finally:
+            self.balance = self.calories - day.base_metabolic_rate - self.cal_burned
+            self.save()
+            return str(self.date_owner) + 'nutrition updated'
     
 """
 
