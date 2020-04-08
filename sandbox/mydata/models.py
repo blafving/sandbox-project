@@ -62,8 +62,8 @@ class User(models.Model):
         # Weekly statistics
         week = Day.objects.filter(user=self).order_by('date').reverse()[:6]
         month = Day.objects.filter(user=self).order_by('date').reverse()[:30]
-        stats['Energy balance +/- Cal'] = int(sum([entry.cal_balance for entry in week]))
-        stats['Mean balance per day'] = int(sum([entry.cal_balance for entry in month]) / month.count())
+        stats['Running Weekly Energy Balance'] = int(sum([entry.nutrient.balance for entry in week]))
+        stats['Mean balance per day'] = int(sum([entry.nutrient.balance for entry in month]) / month.count())
         stats['Exercise in last 7 days'] = int(sum([entry.nutrient.cal_burned for entry in week]))
         stats['Mean exercise per day'] = int(sum([entry.nutrient.cal_burned for entry in month]) / month.count())
         return stats
@@ -118,7 +118,7 @@ class Day(models.Model):
         """
         The number of calories added or subtracted from User this day.
         """
-        return self.nutrient.calories - self.base_metabolic_rate
+        return int(self.nutrient.calories - self.base_metabolic_rate)
 
 class Nutrient(models.Model):
     date_owner = models.OneToOneField(Day, 
@@ -171,11 +171,11 @@ class Nutrient(models.Model):
         self.sugar = api_day.totals['sugar']
         self.protein = api_day.totals['protein']
         try:
-            self.cal_burned = api_day.exercises[0].get_as_list()[0]['nutrition_information']['calories burned']
+            self.cal_burned = sum([x['nutrition_information']['calories burned'] for x in api_day.exercises[0].get_as_list()])
         finally:
-            self.balance = self.calories - day.base_metabolic_rate - self.cal_burned
+            self.balance = self.calories - (day.base_metabolic_rate + self.cal_burned)
             self.save()
-            return str(self.date_owner) + 'nutrition updated'
+            return str(self.date_owner) + ': nutrition updated'
     
 """
 

@@ -27,7 +27,7 @@
           <dl class="dl-horizontal"> 
           {% for key, value in stats.items %}
           <dt>{{ key }} </dt> 
-          <dd> {{ value }} </dd>
+          <dd> {{ value }} Cal</dd>
                {% endfor %}
           </dl> 
         </div>
@@ -39,11 +39,12 @@ Here's what the database looks like:
   <thead>
     <tr>
       <th scope="col">Date</th>
-      <th scope="col">Calories</th>
-      <th scope="col">Carbohydrates</th>
+      <th scope="col">Carbs</th>
       <th scope="col">Protein</th>
       <th scope="col">Fat</th>
       <th scope="col">Sugar</th>
+      <th scope="col">Consumed</th>
+      <th scope="col">Burned</th>
       <th scope="col">Balance</th>
     </tr>
   </thead>
@@ -51,12 +52,13 @@ Here's what the database looks like:
     {% for entry in days %}
     <tr>
       <th scope="row">{{ entry.date }}</th>
-      <td>{{ entry.nutrient.calories }}</td>
-      <td>{{ entry.nutrient.carbs }}</td>
-      <td> {{ entry.nutrient.protein }}</td>
-      <td>{{ entry.nutrient.fat}}</td>
-      <td>{{ entry.nutrient.sugar }}</td>
-      <td>{{ entry.cal_balance }}</td>
+      <td>{{ entry.nutrient.carbs }}g</td>
+      <td> {{ entry.nutrient.protein }}g</td>
+      <td>{{ entry.nutrient.fat }}g</td>
+      <td>{{ entry.nutrient.sugar }}g</td>
+      <td>{{ entry.nutrient.calories }} Cal</td>
+      <td>{{ entry.nutrient.cal_burned }} Cal</td>
+      <td>{{ entry.nutrient.balance }} Cal</td>
     </tr>
     {% endfor %}
   </tbody>

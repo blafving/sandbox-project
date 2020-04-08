@@ -43,7 +43,7 @@ def user(request, username):
         color='#00CC66', 
         line_width=4)
     script, div = components(plot)
-    stats = record.snapshot()
+    stats = record.snapshot() # User function 
     context = {
         'days': days,
         'script': script,
