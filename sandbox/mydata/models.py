@@ -63,7 +63,8 @@ class User(models.Model):
         week = Day.objects.filter(user=self).order_by('date').reverse()[:6]
         month = Day.objects.filter(user=self).order_by('date').reverse()[:30]
         stats['Running Weekly Energy Balance'] = int(sum([entry.nutrient.balance for entry in week]))
-        stats['Mean balance per day'] = int(sum([entry.nutrient.balance for entry in month]) / month.count())
+        mean_fat = str(sum([entry.nutrient.balance for entry in month]) / month.count() / 3500)
+        stats['Mean lbs. of fat per day'] = mean_fat[:6]
         stats['Exercise in last 7 days'] = int(sum([entry.nutrient.cal_burned for entry in week]))
         stats['Mean exercise per day'] = int(sum([entry.nutrient.cal_burned for entry in month]) / month.count())
         return stats
