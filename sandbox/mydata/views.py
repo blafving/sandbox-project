@@ -24,14 +24,14 @@ def user(request, username):
     ### Graphing
     data = {}
     data['date'] = [day.date for day in days]
-    data['calorie balance'] = [day.cal_balance for day in days]
+    data['y plot'] = [day.nutrient.cal_burned for day in days] # Sets attribute for analysis
     df = pd.DataFrame(data)
     df['date'] = pd.to_datetime(df['date'])
     plot = figure(
         title=record.name(), 
         x_axis_label='Time', 
         x_axis_type='datetime',
-        y_axis_label='Calorie balance', 
+        y_axis_label='Calories burnt',  # Sets Name for y axis
         plot_width=800, 
         plot_height=400
         )
@@ -39,7 +39,7 @@ def user(request, username):
         x0=df['date'], 
         y0=[0 for day in days], 
         x1=df['date'],
-        y1=df['calorie balance'],
+        y1=df['y plot'],
         color='#00CC66', 
         line_width=4)
     script, div = components(plot)

@@ -10,12 +10,18 @@ def pageget(url, dict_p):
     print(resp.text[:200])
     return
 
-    tbm=isch&q=%22violins+and+guitars%22
-
 jefit = 'https://www.jefit.com/members/user-logs/log'
-params = {'xid':'6490478', 'dd':'2020-04-06'}
-resp = requests.get(jefit, params = params)
-soup = BeautifulSoup(resp.text)
+params1 = {'xid':'6490478', 'dd':'2020-04-06'}
+resp = requests.get(jefit, params = params1)
+soup = BeautifulSoup(resp.text, features='html.parser')
+
+jefitf = open('jefitday.txt', 'wt')
+for line in soup:
+    jefitf.write(line)
+    jefitf.write('\n')
+jefitf.close()
+
+"""
 Build a function to analyze one of these exercise blocks and store key values as model attributes... maybe even create new exercise models
 Build this into the block_import and update functions 
 Write functions to 
@@ -60,7 +66,7 @@ analyze performance, store max values
 </div>
 </div>
 </div>
-
+"""
 """
 JEFIT Integration
 What we need
@@ -72,3 +78,4 @@ What we need
 6. Strength page/app/section
 7. Plan for the interface
 sweep across all dates
+"""

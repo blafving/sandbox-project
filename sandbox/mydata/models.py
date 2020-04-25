@@ -1,13 +1,14 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
+from django.conf import settings
 import datetime
 import myfitnesspal
 from django.core import exceptions
 
+
 # Create your models here.
-class User(models.Model):
-    firstname = models.CharField('First Name', max_length=50)
-    lastname = models.CharField('Last Name', max_length=50)
+class User(AbstractUser):
     height = models.SmallIntegerField('Height (in.)', default=64)
     birthday = models.DateField('Birthday', default=datetime.date(1981, 9, 20))
     GENDERS = [
@@ -18,13 +19,13 @@ class User(models.Model):
     start_date = models.DateField('My Fitness Pal Start Date', default=datetime.date(2020, 3, 10))
     myfitpal_user = models.CharField(max_length=50)
     myfitpal_pw = models.CharField(max_length=50)
-    weight_init = models.FloatField('Weight')
+    weight_init = models.FloatField('Weight', default=190)
 
     def name(self):
-        return self.firstname + ' ' + self.lastname
+        return self.first_name + ' ' + self.last_name
 
     def __str__(self):
-        return self.firstname + ' ' + self.lastname
+        return self.first_name + ' ' + self.last_name
         
     def block_import(self, start):
         """
@@ -71,7 +72,7 @@ class User(models.Model):
         
 
 class Day(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     date = models.DateField('Date')
     new_weight = models.FloatField(
         'Weight Reading (lbs.)', 
@@ -119,14 +120,18 @@ class Day(models.Model):
         """
         The number of calories added or subtracted from User this day.
         """
-        return int(self.nutrient.calories - self.base_metabolic_rate)
+        return int(self.nutrient.calories - self.base_metabolic_rate - self.nutrient.cal_burned)
+    
+    # @property
+    # def cal_burned(self):
+    #     return Nutrient.objects.get(date_owner=self, user=self.user).cal_burned
 
 class Nutrient(models.Model):
     date_owner = models.OneToOneField(Day, 
         on_delete=models.CASCADE,
     )
     user_owner = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
     )
     calories = models.SmallIntegerField(default=0)
