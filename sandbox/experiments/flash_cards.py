@@ -23,7 +23,7 @@ def create_dict(page):
     exc_soup = BeautifulSoup(exc_got.text, features='html.parser')
     exceptions_html = exc_soup.find_all('dl')
     cards = {(object.attrs['class'][0], 
-        object.dt.attrs['id']): object.dd.p.get_text for object in exceptions_html if object.dd.p}
+        object.dt.attrs['id']): [string for string in object.dd.p.stripped_strings] for object in exceptions_html if object.dd.p}
     return cards    
 
 exc_dict = create_dict(exceptions_page)
@@ -33,7 +33,7 @@ def list_front(cards_dict):
     """
     return [front for front in cards_dict.keys()]
 
-print(list_front(exc_dict))
+
 
 def pick_random(cards_list):
     """

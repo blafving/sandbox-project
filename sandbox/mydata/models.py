@@ -87,8 +87,8 @@ class Day(models.Model):
     def base_metabolic_rate(self):
         user_ref = self.user
         height = float(user_ref.height)
-        weight = self.weight[1]
         age = self.age
+        weight = self.weight[1]
         if user_ref.gender == 'ML':
             return (
                 88.362 + (13.397 * weight / 2.205) \
@@ -102,12 +102,14 @@ class Day(models.Model):
             [1]weight ) from the most recent weight reading
         """
         user_ref = self.user
-        days = Day.objects.filter(user=self.user.id, date__lte=self.date).order_by('date').reverse()
-        for day in days:
-            if day.new_weight:
-                weight = day.new_weight
-                measured_on = str(day.date)
-                return (measured_on, weight)
+        if Day.objects.filter(user=user_ref, date__lte=self.date, new_weight__isnull=False):  # Pull the most recent new_weight
+            last_rec = Day.objects.filter(user=user_ref, date__lte=self.date, new_weight__gt=0).order_by('-date')[0]
+            weight = last_rec.new_weight
+            measured_on = last_rec.date
+        else:
+            weight = self.user.weight_init
+            measured_on = self.user.date_joined
+        return (measured_on, weight)
 
     @property
     def age(self):

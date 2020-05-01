@@ -9,7 +9,12 @@ from bokeh.embed import components
 
 def home(request):
     user_list = User.objects.all()
-    form = UserForm()
+    if request.method == 'POST':
+        form = UserForm(request.POST)
+        if form.is_valid():
+            return HttpResponseRedirect('/user/')
+    else:
+        form = UserForm()
     context = {
         'form': form, 
         'user_list': user_list

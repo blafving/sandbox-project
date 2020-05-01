@@ -1,25 +1,65 @@
 import requests
 from bs4 import BeautifulSoup
+import time
 
 def pageget(url, dict_p):
     """
     Uses requests to fetch the page with parameters in dict_p, returning the text
     """
     resp = requests.get(url, params = dict_p)
-    print(resp.url)
-    print(resp.text[:200])
-    return
+    return resp.text
 
-jefit = 'https://www.jefit.com/members/user-logs/log'
-params1 = {'xid':'6490478', 'dd':'2020-04-06'}
-resp = requests.get(jefit, params = params1)
-soup = BeautifulSoup(resp.text, features='html.parser')
+def get_date(date_str):
+    """
+    retrieves all activities and workouts logged on jefit for a given date
+    """
+    jefit = 'https://www.jefit.com/members/user-logs/log'
+    params1 = {'xid':'6490478', 'dd':date_str}
+    resp = requests.get(jefit, params = params1)
+    soup = BeautifulSoup(resp.text, features='lxml')
+    summaries = soup.find_all(class_='workout-session')
+    activities = soup.find_all(class_='exercise-block')
+    for activity in activities:
+        data = activity.form
+        
+        print(data)
+        print('--------------\n' * 4)
+        time.sleep(2)
 
-jefitf = open('jefitday.txt', 'wt')
-for line in soup:
-    jefitf.write(line)
-    jefitf.write('\n')
-jefitf.close()
+    data = []
+    # for session in summaries:
+    #     print(session)
+        #     if obj.name == 'div':
+        #        data.append(tag.string)
+        # data.append('Next Session')
+    return data
+
+
+def is_session_length(tag):
+    """
+    Returns True if previous sibling of the parent contains string 'Session Length
+    """
+    return tag.parent.previous_sibling == '<div>Session Length</div>'
+
+def get_summary(workout_soup):
+    """
+    Retrieves the workout summary info for a single session in a workout soup object
+    """
+    result = [tag for tag in workout_soup if tag.attrs['class'] == 'workout-session']
+    return result
+
+workouts = get_date('2020-04-16')
+print(workouts)
+
+
+
+
+
+# jefitf = open('jefitday.txt', 'wt')
+# for line in soup:
+#     jefitf.write(line)
+#     jefitf.write('\n')
+# jefitf.close()
 
 """
 Build a function to analyze one of these exercise blocks and store key values as model attributes... maybe even create new exercise models
