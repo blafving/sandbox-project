@@ -34,6 +34,13 @@
     </div>
 </div>
 
+What data would you like to see?
+<form action='' method="post">
+  {% csrf_token %}
+  {{ form }}
+  <input type="submit" value="See the data">
+</form>
+
 Here's what the database looks like:
 <table class="table table-striped">
   <thead>

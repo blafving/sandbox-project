@@ -51,7 +51,7 @@ We did find a user! <br>
     {% for user in user_list %}
     <li>Here's one!</li>
     <li>{{ user.id }}</li>
-    <li><a href="{% url 'mydata:user' user.id %}">{{ user.firstname }}</a>
+    <li><a href="{% url 'mydata:user' user.pk %}">{{ user.firstname }}</a>
 </li>
     {% endfor %}
     </ul>

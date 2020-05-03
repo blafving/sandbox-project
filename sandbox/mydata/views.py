@@ -1,18 +1,23 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from .models import Nutrient, User, Day
-from .forms import UserForm
+from .forms import UserForm, DataForm
 import datetime
 import pandas as pd
 from bokeh.plotting import figure, output_file
 from bokeh.embed import components
+
+NUTRIENT_DICT = {'SAL': 'sodium', 'CRB': 'carbs', 'FAT': 'fat', 'SUG': 'sugar', 'PRO': 'protein', 'CAL': 'calories', 'BAL': 'balance', 'BUR': 'cal_burned'}
 
 def home(request):
     user_list = User.objects.all()
     if request.method == 'POST':
         form = UserForm(request.POST)
         if form.is_valid():
-            return HttpResponseRedirect('/user/')
+            athlete = form.cleaned_data['user']
+            url = '/mydata/' + str(athlete.pk)
+            print(url)
+            return HttpResponseRedirect(url)
     else:
         form = UserForm()
     context = {
@@ -26,17 +31,27 @@ def user(request, username):
     record = get_object_or_404(User, pk=username)
     record.recent_import()
     days = Day.objects.filter(user=username).order_by('date').reverse()
+    print('Hi')
     ### Graphing
     data = {}
     data['date'] = [day.date for day in days]
-    data['y plot'] = [day.nutrient.cal_burned for day in days] # Sets attribute for analysis
+    if request.method == 'POST':
+        print('post request')
+        form = DataForm(request.POST)
+        if form.is_valid():
+            data['y plot'] = [getattr(day.nutrient, NUTRIENT_DICT[form.cleaned_data['choices']]) for day in days]
+            data_name = NUTRIENT_DICT[form.cleaned_data['choices']]
+    else:
+        form = DataForm()
+        data['y plot'] = [day.nutrient.balance for day in days] # Sets attribute for analysis
+        data_name = 'Caloric Balance (+/- Cal)'
     df = pd.DataFrame(data)
     df['date'] = pd.to_datetime(df['date'])
     plot = figure(
         title=record.name(), 
         x_axis_label='Time', 
         x_axis_type='datetime',
-        y_axis_label='Calories burnt',  # Sets Name for y axis
+        y_axis_label=data_name,  # Sets Name for y axis
         plot_width=800, 
         plot_height=400
         )
@@ -50,6 +65,7 @@ def user(request, username):
     script, div = components(plot)
     stats = record.snapshot() # User function 
     context = {
+        'form': form, 
         'days': days,
         'script': script,
         'div': div,
